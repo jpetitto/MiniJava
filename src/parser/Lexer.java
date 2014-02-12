@@ -3,6 +3,8 @@ package parser;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * 
@@ -22,6 +24,45 @@ public class Lexer {
 	private int intVal; // semantic value for INT_CONST token types
 	private int nextChar;
 	private int lineNum = 1, colNum = 1; // current line and column numbers
+	
+	// hash tables for fast lookup
+	private final static Map<String, TokenType> reservedWords;
+	private final static Map<Character, TokenType> punctuation;
+	
+	// initialize hash tables statically
+	static {
+		reservedWords = new HashMap<String, TokenType>();
+		reservedWords.put("boolean", TokenType.BOOLEAN);
+		reservedWords.put("class", TokenType.CLASS);
+		reservedWords.put("else", TokenType.ELSE);
+		reservedWords.put("extends", TokenType.EXTENDS);
+		reservedWords.put("false", TokenType.FALSE);
+		reservedWords.put("if", TokenType.IF);
+		reservedWords.put("int", TokenType.INT);
+		reservedWords.put("main", TokenType.MAIN);
+		reservedWords.put("new", TokenType.NEW);
+		reservedWords.put("public", TokenType.PUBLIC);
+		reservedWords.put("return", TokenType.RETURN);
+		reservedWords.put("static", TokenType.STATIC);
+		reservedWords.put("String", TokenType.STRING);
+		reservedWords.put("this", TokenType.THIS);
+		reservedWords.put("true", TokenType.TRUE);
+		reservedWords.put("void", TokenType.VOID);
+		reservedWords.put("while", TokenType.WHILE);
+		
+		punctuation = new HashMap<Character, TokenType>();
+		punctuation.put('(', TokenType.LPAREN);
+		punctuation.put(')', TokenType.RPAREN);
+		punctuation.put('[', TokenType.LBRACKET);
+		punctuation.put(']', TokenType.RBRACKET);
+		punctuation.put('{', TokenType.LBRACE);
+		punctuation.put('}', TokenType.RBRACE);
+		punctuation.put(';', TokenType.SEMI);
+		punctuation.put(',', TokenType.COMMA);
+		punctuation.put('.', TokenType.DOT);
+		punctuation.put('=', TokenType.ASSIGN);
+		punctuation.put('!', TokenType.BANG);
+	}
 	
 	public Lexer(FileReader file) {
 		this.stream = new BufferedReader(file);
@@ -99,41 +140,10 @@ public class Lexer {
 				nextChar = getChar();
 			}
 			
-			// check for reserved word match
-			if (idVal.equals("class"))
-				return new Token(TokenType.CLASS, lineNum, colNum - "class".length());
-			if (idVal.equals("public"))
-				return new Token(TokenType.PUBLIC, lineNum, colNum - "public".length());
-			if (idVal.equals("static"))
-				return new Token(TokenType.STATIC, lineNum, colNum - "static".length());
-			if (idVal.equals("void"))
-				return new Token(TokenType.VOID, lineNum, colNum - "void".length());
-			if (idVal.equals("main"))
-				return new Token(TokenType.MAIN, lineNum, colNum - "main".length());
-			if (idVal.equals("String"))
-				return new Token(TokenType.STRING, lineNum, colNum - "String".length());
-			if (idVal.equals("extends"))
-				return new Token(TokenType.EXTENDS, lineNum, colNum - "extends".length());
-			if (idVal.equals("return"))
-				return new Token(TokenType.RETURN, lineNum, colNum - "return".length());
-			if (idVal.equals("int"))
-				return new Token(TokenType.INT, lineNum, colNum - "int".length());
-			if (idVal.equals("boolean"))
-				return new Token(TokenType.BOOLEAN, lineNum, colNum - "boolean".length());
-			if (idVal.equals("if"))
-				return new Token(TokenType.IF, lineNum, colNum - "if".length());
-			if (idVal.equals("else"))
-				return new Token(TokenType.ELSE, lineNum, colNum - "else".length());
-			if (idVal.equals("while"))
-				return new Token(TokenType.WHILE, lineNum, colNum - "while".length());
-			if (idVal.equals("true"))
-				return new Token(TokenType.TRUE, lineNum, colNum - "true".length());
-			if (idVal.equals("false"))
-				return new Token(TokenType.FALSE, lineNum, colNum - "false".length());
-			if (idVal.equals("this"))
-				return new Token(TokenType.THIS, lineNum, colNum - "this".length());
-			if (idVal.equals("new"))
-				return new Token(TokenType.NEW, lineNum, colNum - "new".length());
+			// check if identifier is a reserved word
+			TokenType type = reservedWords.get(idVal);
+			if (type != null)
+				return new Token(type, lineNum, colNum - idVal.length());
 			
 			// token is an identifier
 			return new Token(TokenType.ID, lineNum, colNum - idVal.length());
@@ -231,11 +241,7 @@ public class Lexer {
 		if (nextChar == -1)
 			return new Token(TokenType.EOF, lineNum, colNum);
 		
-		// check for binops and punctuation
-		Token token = null;
-		boolean doNotProcess = false; // used when checking for a second char
-		colNum++;
-		
+		// check for binops
 		switch (nextChar) {
 		
 			case '&':
@@ -244,85 +250,42 @@ public class Lexer {
 				
 				// check if next char is '&' to match '&&' binop
 				if (nextChar == '&') {
-					token = new Token(TokenType.AND, lineNum, colNum - 2);
-				} else {
-					token = new Token(TokenType.UNKNOWN, lineNum, colNum - 1);
-					doNotProcess = true;
-				}
-				
-				break;
+					nextChar = getChar();
+					return new Token(TokenType.AND, lineNum, colNum - 2);
+				} else
+					return new Token(TokenType.UNKNOWN, lineNum, colNum - 1);
 				
 			case '<':
-				token = new Token(TokenType.LT, lineNum, colNum - 1);
-				break;
+				colNum++;
+				nextChar = getChar();
+				return new Token(TokenType.LT, lineNum, colNum - 1);
 				
 			case '+':
-				token = new Token(TokenType.PLUS, lineNum, colNum - 1);
-				break;
+				colNum++;
+				nextChar = getChar();
+				return new Token(TokenType.PLUS, lineNum, colNum - 1);
 				
 			case '-':
-				token = new Token(TokenType.MINUS, lineNum, colNum - 1);
-				break;
+				colNum++;
+				nextChar = getChar();
+				return new Token(TokenType.MINUS, lineNum, colNum - 1);
 				
 			case '*':
-				token = new Token(TokenType.TIMES, lineNum, colNum - 1);
-				break;
-				
-			case '(':
-				token = new Token(TokenType.LPAREN, lineNum, colNum - 1);
-				break;
-				
-			case ')':
-				token = new Token(TokenType.RPAREN, lineNum, colNum - 1);
-				break;
-				
-			case '[':
-				token = new Token(TokenType.LBRACKET, lineNum, colNum - 1);
-				break;
-				
-			case ']':
-				token = new Token(TokenType.RBRACKET, lineNum, colNum - 1);
-				break;
-				
-			case '{':
-				token = new Token(TokenType.LBRACE, lineNum, colNum - 1);
-				break;
-				
-			case '}':
-				token = new Token(TokenType.RBRACE, lineNum, colNum - 1);
-				break;
-				
-			case ';':
-				token = new Token(TokenType.SEMI, lineNum, colNum - 1);
-				break;
-				
-			case ',':
-				token = new Token(TokenType.COMMA, lineNum, colNum - 1);
-				break;
-				
-			case '.':
-				token = new Token(TokenType.DOT, lineNum, colNum - 1);
-				break;
-				
-			case '=':
-				token = new Token(TokenType.ASSIGN, lineNum, colNum - 1);
-				break;
-				
-			case '!':
-				token = new Token(TokenType.BANG, lineNum, colNum - 1);
-				break;
-			
-			// token type is unknown
-			default:
-				token = new Token(TokenType.UNKNOWN, lineNum, colNum - 1);
-				break;
+				colNum++;
+				nextChar = getChar();
+				return new Token(TokenType.TIMES, lineNum, colNum - 1);
 		}
 		
-		// prime next char if binop/punctuation was more than one char
-		if (!doNotProcess) {
-			nextChar = getChar();
-		}
+		// check for punctuation
+		TokenType type = punctuation.get((char) nextChar);
+		colNum++;
+		nextChar = getChar();
 		
-		return token;
+		// found punctuation token
+		if (type != null)
+			return new Token(type, lineNum, colNum - 1);
+		
+		// token type is unknown
+		return new Token(TokenType.UNKNOWN, lineNum, colNum - 1);
 	}
 }
