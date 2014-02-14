@@ -124,6 +124,10 @@ public class Lexer {
 				colNum++;
 				nextChar = getChar();
 			}
+			
+			// offset colNum for tab chars
+			if (nextChar == '\t')
+				colNum += 3;
 		}
 		
 		// identifier or reserved word ([a-zA-Z][a-zA-Z0-9_]*)
