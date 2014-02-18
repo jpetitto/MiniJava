@@ -7,23 +7,36 @@ import parser.TokenType;
 
 public class TestLexer {
 	public static void main(String[] args) {
-		if (args.length != 1)
-			System.err.println("No file argument given");
+		if (args.length == 0)
+			System.err.println("No file arguments given");
 		else {
-			try {
-				FileReader file = new FileReader("programs/" + args[0]);
+			// parse each file argument given
+			for (int i = 0; i < args.length; i++) {
+				FileReader file;
+				
+				// attempt to open file
+				try {
+					file = new FileReader("programs/" + args[i]);
+				} catch (FileNotFoundException e) {
+					System.err.println(args[i] + " was not found in MiniJava/programs");
+					continue; // try next file
+				}
+				
+				// create lexer
 				Lexer lexer = new Lexer(file);
 				
+				// start tokenizing file
+				System.out.println("Tokenizing " + args[i] + "...");
 				long startTime = System.currentTimeMillis();
 				int numTokens = 0;
-				
 				Token token;
 				do {
 					token = lexer.getToken();
 					numTokens++;
 					
 					// print token type and location
-					System.out.print(token.getType() + " (" + token.getLineNum() + "," + token.getColNum() + ")");
+					System.out.print(token.getType());
+					System.out.print(" (" + token.getLineNum() + "," + token.getColNum() + ")");
 					
 					// print out semantic values for ID and INT_CONST tokens
 					if (token.getType() == TokenType.ID)
@@ -41,9 +54,7 @@ public class TestLexer {
 				System.out.println("---");
 				System.out.println("Number of tokens: " + numTokens);
 				System.out.println("Execution time: " + (endTime - startTime) + "ms");
-				
-			} catch (FileNotFoundException e) {
-				System.err.println(args[0] + " was not found in MiniJava/programs");
+				System.out.println();
 			}
 		}
 	}

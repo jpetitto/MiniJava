@@ -24,7 +24,7 @@ public class Lexer {
 	private int intVal; // semantic value for INT_CONST token types
 	private int nextChar;
 	private int lineNum = 1, colNum = 1; // current line and column numbers
-	private Token next;
+	private Token next; // used by peek()
 	
 	// hash tables for fast lookup
 	private final static Map<String, TokenType> reservedWords;
@@ -118,7 +118,7 @@ public class Lexer {
 	
 	// return the next token without "consuming" it
 	public Token peek() {
-		// advance token only if its been reset my getToken()
+		// advance token only if its been reset by getToken()
 		if (next == null)
 			next = getToken();
 		
