@@ -5,7 +5,7 @@ import visitor.Visitor;
 public class IntegerLiteral extends Exp {
 	private int value;
 	
-	private IntegerLiteral(int value) {
+	public IntegerLiteral(int value) {
 		this.value = value;
 	}
 	

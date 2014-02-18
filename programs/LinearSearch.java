@@ -33,7 +33,7 @@ class LS {
 	int j ;
 
 	j = 1 ;
-	while (j &lt; (size)) {
+	while (j < (size)) {
 	    System.out.println(number[j]);
 	    j = j + 1 ;
 	}
@@ -55,11 +55,11 @@ class LS {
 	ifound = 0 ;
 	
 	//System.out.println(num);
-	while (j &lt; (size)) {
+	while (j < (size)) {
 	    aux01 = number[j] ;
 	    aux02 = num + 1 ;
-	    if (aux01 &lt; num) nt = 0 ;
-	    else if (!(aux01 &lt; aux02)) nt = 0 ;
+	    if (aux01 < num) nt = 0 ;
+	    else if (!(aux01 < aux02)) nt = 0 ;
 	    else {
 		ls01 = true ;
 		ifound = 1 ;
@@ -86,7 +86,7 @@ class LS {
 	
 	j = 1 ;
 	k = size + 1 ;
-	while (j &lt; (size)) {
+	while (j < (size)) {
 	    aux01 = 2 * j ;
 	    aux02 = k - 3 ;
 	    number[j] = aux01 + aux02 ;

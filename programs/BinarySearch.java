@@ -60,11 +60,11 @@ class BS{
 	    medium = left + right ;
 	    medium = this.Div(medium);
 	    aux01 = number[medium] ;
-	    if (num &lt; aux01) right = medium - 1 ;
+	    if (num < aux01) right = medium - 1 ;
 	    else left = medium + 1 ;
 	    if (this.Compare(aux01,num)) var_cont = false ;
 	    else var_cont = true ;
-	    if (right &lt; left) var_cont = false ;
+	    if (right < left) var_cont = false ;
 	    else nt = 0 ;
 	}
 
@@ -83,7 +83,7 @@ class BS{
 	count01 = 0 ;
 	count02 = 0 ;
 	aux03 = num - 1 ;
-	while (count02 &lt; aux03) {
+	while (count02 < aux03) {
 	    count01 = count01 + 1 ;
 	    count02 = count02 + 2 ;
 	}
@@ -100,8 +100,8 @@ class BS{
 
 	retval = false ;
 	aux02 = num2 + 1 ;
-	if (num1 &lt; num2) retval = false ;
-	else if (!(num1 &lt; aux02)) retval = false ;
+	if (num1 < num2) retval = false ;
+	else if (!(num1 < aux02)) retval = false ;
 	else retval = true ;
 	return retval ;
     }
@@ -111,7 +111,7 @@ class BS{
 	int j ;
 
 	j = 1 ;
-	while (j &lt; (size)) {
+	while (j < (size)) {
 	    System.out.println(number[j]);
 	    j = j + 1 ;
 	}
@@ -132,7 +132,7 @@ class BS{
 	
 	j = 1 ;
 	k = size + 1 ;
-	while (j &lt; (size)) {
+	while (j < (size)) {
 	    aux01 = 2 * j ;
 	    aux02 = k - 3 ;
 	    number[j] = aux01 + aux02 ;

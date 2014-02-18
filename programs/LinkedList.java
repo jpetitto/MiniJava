@@ -63,8 +63,8 @@ class Element {
 	int aux02 ;
 	retval = false ;
 	aux02 = num2 + 1 ;
-	if (num1 &lt; num2) retval = false ;
-	else if (!(num1 &lt; aux02)) retval = false ;
+	if (num1 < num2) retval = false ;
+	else if (!(num1 < aux02)) retval = false ;
 	else retval = true ;
 	return retval ;
     }
@@ -128,10 +128,10 @@ class List{
 	prev = this ;
 	var_end = end;
 	var_elem = elem ;
-	while ((!var_end) &amp;&amp; (!ret_val)){
+	while ((!var_end) && (!ret_val)){
 	    if (e.Equal(var_elem)){
 		ret_val = true ;
-		if (aux04 &lt; 0) { 
+		if (aux04 < 0) { 
 		    // delete first element
 		    my_head = aux01.GetNext() ;
 		} 

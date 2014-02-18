@@ -24,6 +24,7 @@ public class Lexer {
 	private int intVal; // semantic value for INT_CONST token types
 	private int nextChar;
 	private int lineNum = 1, colNum = 1; // current line and column numbers
+	private Token next;
 	
 	// hash tables for fast lookup
 	private final static Map<String, TokenType> reservedWords;
@@ -115,8 +116,24 @@ public class Lexer {
 		return false;
 	}
 	
+	// return the next token without "consuming" it
+	public Token peek() {
+		// advance token only if its been reset my getToken()
+		if (next == null)
+			next = getToken();
+		
+		return next;
+	}
+	
 	// retrieves the next token in the input stream (EOF signals end of input)
 	public Token getToken() {
+		// check if peek() was called
+		if (next != null) {
+			Token token = next;
+			next = null; // allow peek to call for next token
+			return token;
+		}
+		
 		// skip whitespace
 		while (Character.isWhitespace(nextChar)) {
 			// check if whitespace char is a newline

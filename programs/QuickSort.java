@@ -38,7 +38,7 @@ class QS{
 	boolean cont02;
 	int aux03 ;
 	t = 0 ;
-	if (left &lt; right){
+	if (left < right){
 	    v = number[right] ;
 	    i = left - 1 ;
 	    j = right ;
@@ -48,14 +48,14 @@ class QS{
 		while (cont02){
 		    i = i + 1 ;
 		    aux03 = number[i] ;
-		    if (!(aux03&lt;v)) cont02 = false ;
+		    if (!(aux03<v)) cont02 = false ;
 		    else cont02 = true ;
 		}
 		cont02 = true ;
 		while (cont02){
 		    j = j - 1 ;
 		    aux03 = number[j] ;
-		    if (!(v &lt; aux03)) cont02 = false ;
+		    if (!(v < aux03)) cont02 = false ;
 		    else cont02 = true ;
 		}
 
@@ -64,7 +64,7 @@ class QS{
 		number[i] = number[j] ;
 		number[j] = t ;
 		//aux03 = i + 1 ;
-		if ( j &lt; (i+1)) cont01 = false ;
+		if ( j < (i+1)) cont01 = false ;
 		else cont01 = true ;
 	    }
 	    number[j] = number[i] ;
@@ -82,7 +82,7 @@ class QS{
     public int Print(){
 	int j ;
 	j = 0 ;
-	while (j &lt; (size)) {
+	while (j < (size)) {
 	    System.out.println(number[j]);
 	    j = j + 1 ;
 	}

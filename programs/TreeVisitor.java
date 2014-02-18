@@ -130,8 +130,8 @@ class Tree{
 
 	ntb = false ;
 	nti = num2 + 1 ;
-	if (num1 &lt; num2) ntb = false ;
-	else if (!(num1 &lt; nti)) ntb = false ;
+	if (num1 < num2) ntb = false ;
+	else if (!(num1 < nti)) ntb = false ;
 	else ntb = true ;
 	return ntb ;
     }
@@ -149,7 +149,7 @@ class Tree{
 	cont = true ;
 	while (cont){
 	    key_aux = current_node.GetKey();
-	    if (v_key &lt; key_aux){
+	    if (v_key < key_aux){
 		if (current_node.GetHas_Left())
 		    current_node = current_node.GetLeft() ;
 		else {
@@ -187,14 +187,14 @@ class Tree{
 	is_root = true ;
 	while (cont){
 	    key_aux = current_node.GetKey();
-	    if (v_key &lt; key_aux)
+	    if (v_key < key_aux)
 		if (current_node.GetHas_Left()){
 		    parent_node = current_node ;
 		    current_node = current_node.GetLeft() ;
 		}
 		else cont = false ;
 	    else 
-		if (key_aux &lt; v_key)
+		if (key_aux < v_key)
 		    if (current_node.GetHas_Right()){
 			parent_node = current_node ;
 			current_node = current_node.GetRight() ;
@@ -202,7 +202,7 @@ class Tree{
 		    else cont = false ;
 		else { 
 		    if (is_root) 
-			if (!current_node.GetHas_Right() &amp;&amp; 
+			if (!current_node.GetHas_Right() && 
 			    !current_node.GetHas_Left() )
 			    ntb = true ;
 			else 
@@ -277,12 +277,12 @@ class Tree{
 	ifound = 0 ;
 	while (cont){
 	    key_aux = current_node.GetKey();
-	    if (v_key &lt; key_aux)
+	    if (v_key < key_aux)
 		if (current_node.GetHas_Left())
 		    current_node = current_node.GetLeft() ;
 		else cont = false ;
 	    else 
-		if (key_aux &lt; v_key)
+		if (key_aux < v_key)
 		    if (current_node.GetHas_Right())
 			current_node = current_node.GetRight() ;
 		    else cont = false ;
