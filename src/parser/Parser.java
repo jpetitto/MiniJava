@@ -22,6 +22,7 @@ public class Parser {
 	private Lexer lexer;
 	private Token token;
 	private Exp objectMethodCall; // used for parsing exps with dot operator
+	private int errors;
 	
 	// hash table for operator precedence levels
 	private final static Map<TokenType, Integer> binopLevels;
@@ -55,6 +56,12 @@ public class Parser {
 		System.err.print("ERROR: " + token.getType());
 		System.err.print(" at line " + token.getLineNum() + ", column " + token.getColNum());
 		System.err.println("; Expected " + type);
+		errors++;
+	}
+	
+	// number of reported syntax errors
+	public int getErrorCount() {
+		return errors;
 	}
 	
 	// a helper method for parsing an identifier
