@@ -24,17 +24,17 @@ public class Parser {
 	private Exp objectMethodCall; // used for parsing exps with dot operator
 	
 	// hash table for operator precedence levels
-	private final static Map<TokenType, Integer> binopOrder;
+	private final static Map<TokenType, Integer> binopLevels;
 	
 	static {
-		binopOrder = new HashMap<TokenType, Integer>();
-		binopOrder.put(TokenType.AND, 10);
-		binopOrder.put(TokenType.LT, 20);
-		binopOrder.put(TokenType.PLUS, 30);
-		binopOrder.put(TokenType.MINUS, 30);
-		binopOrder.put(TokenType.TIMES, 40);
-		binopOrder.put(TokenType.DOT, 50); // method calls
-		binopOrder.put(TokenType.LBRACKET, 50); // array look-up
+		binopLevels = new HashMap<TokenType, Integer>();
+		binopLevels.put(TokenType.AND, 10);
+		binopLevels.put(TokenType.LT, 20);
+		binopLevels.put(TokenType.PLUS, 30);
+		binopLevels.put(TokenType.MINUS, 30);
+		binopLevels.put(TokenType.TIMES, 40);
+		binopLevels.put(TokenType.DOT, 50); // method calls
+		binopLevels.put(TokenType.LBRACKET, 50); // array look-up
 	}
 	
 	public Parser(FileReader file) {
@@ -315,7 +315,7 @@ public class Parser {
 						}
 						eat(TokenType.RPAREN);
 						
-						return new Call(obj, new Identifier(id.getName()), args);
+						return new Call(obj, id, args);
 					}
 				}
 				
@@ -365,11 +365,11 @@ public class Parser {
 		// continuously parse exp until a lower order operator comes up
 		while (true) {
 			// grab operator precedence (-1 for non-operator token)
-			Integer val = binopOrder.get(token.getType());
-			int tokenOrder = (val != null) ? val.intValue() : -1;
+			Integer val = binopLevels.get(token.getType());
+			int tokenLevel = (val != null) ? val.intValue() : -1;
 			
 			// either op precedence is lower than prev op or token is not an op
-			if (tokenOrder < level)
+			if (tokenLevel < level)
 				return lhs;
 			
 			// save binop before parsing rhs of exp
@@ -383,12 +383,12 @@ public class Parser {
 			Exp rhs = parsePrimaryExp(); // parse rhs of exp
 			
 			// grab operator precedence (-1 for non-operator token)
-			val = binopOrder.get(token.getType());
-			int nextOrder = (val != null) ? val.intValue() : -1;
+			val = binopLevels.get(token.getType());
+			int nextLevel = (val != null) ? val.intValue() : -1;
 			
 			// if next op has higher precedence than prev op, make recursive call
-			if (tokenOrder < nextOrder)
-				rhs = parseBinopRHS(tokenOrder + 1, rhs);
+			if (tokenLevel < nextLevel)
+				rhs = parseBinopRHS(tokenLevel + 1, rhs);
 			
 			// build AST for exp
 			switch (binop) {
