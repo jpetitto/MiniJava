@@ -57,6 +57,7 @@ public class Parser {
 		System.err.print(" at line " + token.getLineNum() + ", column " + token.getColNum());
 		System.err.println("; Expected " + type);
 		errors++;
+		token = lexer.getToken();
 	}
 	
 	// number of reported syntax errors
@@ -88,7 +89,8 @@ public class Parser {
 		return new Program(main, classList);
 	}
 	
-	// Class w/ main method: class id { public static void main ( String [] id ) { Statement } }
+	// Class w/ main method:
+	// class id { public static void main ( String [] id ) { Statement } }
 	private MainClass parseMainClass() {
 		eat(TokenType.CLASS);
 		
@@ -136,7 +138,7 @@ public class Parser {
 			eat(TokenType.LBRACE);
 			
 			// parse entire class body
-			while (token.getType() != TokenType.RBRACE) {
+			while (token.getType() != TokenType.RBRACE && token.getType() != TokenType.EOF) {
 				// parse method or field
 				if (token.getType() == TokenType.PUBLIC)
 					methods.addElement(parseMethodDecl());
@@ -156,7 +158,7 @@ public class Parser {
 			eat(TokenType.LBRACE);
 			
 			// parse entire class body
-			while (token.getType() != TokenType.RBRACE) {
+			while (token.getType() != TokenType.RBRACE && token.getType() != TokenType.EOF) {
 				// parse method or field
 				if (token.getType() == TokenType.PUBLIC)
 					methods.addElement(parseMethodDecl());
@@ -177,7 +179,7 @@ public class Parser {
 			
 			// recursively call parseStatement() until closing brace
 			StatementList stms = new StatementList();
-			while (token.getType() != TokenType.RBRACE)
+			while (token.getType() != TokenType.RBRACE && token.getType() != TokenType.EOF)
 				stms.addElement(parseStatement());
 			eat(TokenType.RBRACE);
 			
@@ -269,6 +271,7 @@ public class Parser {
 		}
 		
 		// statement type unknown
+		eat(TokenType.UNKNOWN);
 		return null;
 	}
 	
@@ -362,6 +365,7 @@ public class Parser {
 			
 			default:
 				// unrecognizable expression
+				error(TokenType.UNKNOWN);
 				return null;
 				
 		}
@@ -464,7 +468,8 @@ public class Parser {
 		StatementList stms = new StatementList();
 		
 		/* collect all var declarations and statements */
-		while (token.getType() != TokenType.RETURN) {
+		while (token.getType() != TokenType.RETURN && token.getType() != TokenType.EOF) {
+			
 			switch (token.getType()) {
 				
 				// int and boolean signals start of var declaration
