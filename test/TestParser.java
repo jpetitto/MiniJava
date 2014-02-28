@@ -35,6 +35,7 @@ public class TestParser {
 				// print out statistics
 				System.out.println("File has finished parsing!");
 				System.out.println("Execution time: " + (endTime - startTime) + "ms");
+				System.out.println(parser.getErrorCount() + " errors reported");
 				System.out.println("---");
 				
 				// print out ASTs

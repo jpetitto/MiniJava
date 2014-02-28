@@ -23,6 +23,7 @@ public class Parser {
 	private Token token;
 	private Exp objectMethodCall; // used for parsing exps with dot operator
 	private int errors;
+	private Token errorToken;
 	
 	// hash table for operator precedence levels
 	private final static Map<TokenType, Integer> binopLevels;
@@ -44,20 +45,38 @@ public class Parser {
 	}
 	
 	// verifies current token type and grabs next token or reports error
-	private void eat(TokenType type) {
-		if (token.getType() == type)
+	private boolean eat(TokenType type) {
+		if (token.getType() == type) {
 			token = lexer.getToken();
-		else
+			return true;
+		} else {
 			error(type);
+			return false;
+		}
+	}
+	
+	private void skipTo(TokenType... follow) {
+		while (token.getType() != TokenType.EOF) {
+			for (TokenType skip : follow) {
+				if (token.getType() == skip)
+					return;
+			}
+			token = lexer.getToken();
+		}
 	}
 	
 	// reports an error to the console
 	private void error(TokenType type) {
+		// only report error once per erroneous token
+		if (token == errorToken)
+			return;
+		
 		System.err.print("ERROR: " + token.getType());
 		System.err.print(" at line " + token.getLineNum() + ", column " + token.getColNum());
 		System.err.println("; Expected " + type);
+		errorToken = token;
 		errors++;
-		token = lexer.getToken();
+		// token = lexer.getToken();
 	}
 	
 	// number of reported syntax errors
@@ -92,30 +111,61 @@ public class Parser {
 	// Class w/ main method:
 	// class id { public static void main ( String [] id ) { Statement } }
 	private MainClass parseMainClass() {
-		eat(TokenType.CLASS);
+		if (!eat(TokenType.CLASS))
+			skipTo(TokenType.ID, TokenType.LBRACE, TokenType.RBRACE);
 		
 		// check for class identifier name
 		Identifier className = parseIdentifier();
 		
-		eat(TokenType.LBRACE);
-		eat(TokenType.PUBLIC);
-		eat(TokenType.STATIC);
-		eat(TokenType.VOID);
-		eat(TokenType.MAIN);
-		eat(TokenType.LPAREN);
-		eat(TokenType.STRING);
-		eat(TokenType.LBRACKET);
-		eat(TokenType.RBRACKET);
+		if (!eat(TokenType.LBRACE))
+			skipTo(TokenType.PUBLIC, TokenType.STATIC, TokenType.VOID, 
+					TokenType.MAIN, TokenType.LPAREN, TokenType.RPAREN);
+		
+		if (!eat(TokenType.PUBLIC))
+			skipTo(TokenType.STATIC, TokenType.VOID, TokenType.MAIN, 
+					TokenType.LPAREN, TokenType.RPAREN);
+		
+		if (!eat(TokenType.STATIC))
+			skipTo(TokenType.VOID, TokenType.MAIN, TokenType.LPAREN, 
+					TokenType.RPAREN);
+		
+		if (!eat(TokenType.VOID))
+			skipTo(TokenType.MAIN, TokenType.LPAREN, TokenType.RPAREN);
+		
+		if (!eat(TokenType.MAIN))
+			skipTo(TokenType.LPAREN, TokenType.RPAREN);
+		
+		if (!eat(TokenType.LPAREN))
+			skipTo(TokenType.STRING, TokenType.LBRACKET, TokenType.ID, 
+					TokenType.RPAREN, TokenType.LBRACE, TokenType.RBRACE);
+		
+		if (!eat(TokenType.STRING))
+			skipTo(TokenType.LBRACKET, TokenType.ID, TokenType.RPAREN, 
+					TokenType.LBRACE, TokenType.RBRACE);
+		
+		if (!eat(TokenType.LBRACKET))
+			skipTo(TokenType.RBRACKET, TokenType.ID, TokenType.RPAREN, 
+					TokenType.LBRACE, TokenType.RBRACE);
+		
+		if (!eat(TokenType.RBRACKET))
+			skipTo(TokenType.ID, TokenType.RPAREN, TokenType.LBRACE, 
+					TokenType.RBRACE);
 		
 		Identifier argName = parseIdentifier();
 		
-		eat(TokenType.RPAREN);
-		eat(TokenType.LBRACE);
+		if (!eat(TokenType.RPAREN))
+			skipTo(TokenType.LBRACE, TokenType.RBRACE);
+		
+		if (!eat(TokenType.LBRACE))
+			skipTo(TokenType.RBRACE);
 		
 		Statement stm = parseStatement();
 		
-		eat(TokenType.RBRACE);
-		eat(TokenType.RBRACE);
+		if (!eat(TokenType.RBRACE))
+			skipTo(TokenType.RBRACE, TokenType.CLASS);
+		
+		if (!eat(TokenType.RBRACE))
+			skipTo(TokenType.CLASS);
 		
 		return new MainClass(className, argName, stm);
 	}
@@ -134,28 +184,13 @@ public class Parser {
 		MethodDeclList methods = new MethodDeclList();
 		
 		// check whether class extends a superclass or not
-		if (token.getType() == TokenType.LBRACE) {
-			eat(TokenType.LBRACE);
-			
-			// parse entire class body
-			while (token.getType() != TokenType.RBRACE && token.getType() != TokenType.EOF) {
-				// parse method or field
-				if (token.getType() == TokenType.PUBLIC)
-					methods.addElement(parseMethodDecl());
-				else
-					fields.addElement(parseVarDecl());
-			}
-			eat(TokenType.RBRACE);
-			
-			return new ClassDeclSimple(className, fields, methods);
-			
-		} else {
+		if (token.getType() == TokenType.EXTENDS) {
 			eat(TokenType.EXTENDS);
 			
 			// check for superclass identifier name
 			Identifier superName = parseIdentifier();
 			
-			eat(TokenType.LBRACE);
+			if (!eat(TokenType.LBRACE)) skipTo(TokenType.RBRACE);
 			
 			// parse entire class body
 			while (token.getType() != TokenType.RBRACE && token.getType() != TokenType.EOF) {
@@ -165,9 +200,25 @@ public class Parser {
 				else
 					fields.addElement(parseVarDecl());
 			}
-			eat(TokenType.RBRACE);
+			if (!eat(TokenType.RBRACE)) skipTo(TokenType.CLASS);
 			
 			return new ClassDeclExtends(className, superName, fields, methods);
+			
+		} else {
+			if (!eat(TokenType.LBRACE))
+				skipTo(TokenType.RBRACE);
+			
+			// parse entire class body
+			while (token.getType() != TokenType.RBRACE && token.getType() != TokenType.EOF) {
+				// parse method or field
+				if (token.getType() == TokenType.PUBLIC)
+					methods.addElement(parseMethodDecl());
+				else
+					fields.addElement(parseVarDecl());
+			}
+			if (!eat(TokenType.RBRACE)) skipTo(TokenType.CLASS);
+			
+			return new ClassDeclSimple(className, fields, methods);
 			
 		}
 	}
@@ -181,7 +232,9 @@ public class Parser {
 			StatementList stms = new StatementList();
 			while (token.getType() != TokenType.RBRACE && token.getType() != TokenType.EOF)
 				stms.addElement(parseStatement());
-			eat(TokenType.RBRACE);
+			
+			if (!eat(TokenType.RBRACE)) 
+				skipTo(TokenType.RBRACE, TokenType.SEMI);
 			
 			return new Block(stms);
 		}
@@ -191,13 +244,20 @@ public class Parser {
 			eat(TokenType.IF);
 			
 			// parse conditional expression
-			eat(TokenType.LPAREN);
+			if (!eat(TokenType.LPAREN))
+				skipTo(TokenType.RPAREN, TokenType.LBRACE, TokenType.RBRACE);
+			
 			Exp condExp = parseExp();
-			eat(TokenType.RPAREN);
+			
+			if (!eat(TokenType.RPAREN))
+				skipTo(TokenType.LBRACE, TokenType.SEMI, TokenType.RBRACE);
 			
 			// parse true and false statements
 			Statement trueStm = parseStatement();
-			eat(TokenType.ELSE);
+			
+			if (!eat(TokenType.ELSE))
+				skipTo(TokenType.LBRACE, TokenType.SEMI, TokenType.RBRACE);
+			
 			Statement falseStm = parseStatement();
 			
 			return new If(condExp, trueStm, falseStm);
@@ -208,9 +268,13 @@ public class Parser {
 			eat(TokenType.WHILE);
 			
 			// parse looping condition
-			eat(TokenType.LPAREN);
+			if (!eat(TokenType.LPAREN))
+				skipTo(TokenType.RPAREN, TokenType.LBRACE, TokenType.RBRACE);
+			
 			Exp condExp = parseExp();
-			eat(TokenType.RPAREN);
+			
+			if (!eat(TokenType.RPAREN))
+				skipTo(TokenType.LBRACE, TokenType.SEMI, TokenType.RBRACE);
 			
 			// parse looping statement
 			Statement loopStm = parseStatement();
@@ -229,19 +293,31 @@ public class Parser {
 				
 				if (token.getType() == TokenType.ID && lexer.getIdVal().equals("out"))
 					eat(TokenType.ID);
-				else
+				else {
+					eat(TokenType.STATEMENT);
 					return null;
+				}
 				
-				eat(TokenType.DOT);
+				if (!eat(TokenType.DOT)) {
+					eat(TokenType.STATEMENT);
+					return null;
+				}
 				
 				if (token.getType() == TokenType.ID && lexer.getIdVal().equals("println"))
 					eat(TokenType.ID);
-				else
+				else {
+					eat(TokenType.STATEMENT);
 					return null;
+				}
 				
-				eat(TokenType.LPAREN);
+				if (!eat(TokenType.LPAREN))
+					skipTo(TokenType.RPAREN, TokenType.SEMI);
+				
 				Exp printExp = parseExp();
-				eat(TokenType.RPAREN);
+				
+				if (!eat(TokenType.RPAREN))
+					skipTo(TokenType.SEMI);
+				
 				eat(TokenType.SEMI);
 				
 				return new Print(printExp);
@@ -260,9 +336,13 @@ public class Parser {
 			if (token.getType() == TokenType.LBRACKET) {
 				eat(TokenType.LBRACKET);
 				Exp index = parseExp();
-				eat(TokenType.RBRACKET);
 				
-				eat(TokenType.ASSIGN);
+				if (!eat(TokenType.RBRACKET))
+					skipTo(TokenType.ASSIGN, TokenType.SEMI);
+				
+				if (!eat(TokenType.ASSIGN))
+					skipTo(TokenType.SEMI);
+				
 				Exp value = parseExp();
 				eat(TokenType.SEMI);
 				
@@ -271,7 +351,8 @@ public class Parser {
 		}
 		
 		// statement type unknown
-		eat(TokenType.UNKNOWN);
+		eat(TokenType.STATEMENT);
+		token = lexer.getToken();
 		return null;
 	}
 	
@@ -311,7 +392,8 @@ public class Parser {
 					if (id.getName().equals("length"))
 						return new ArrayLength(obj);
 					else {
-						eat(TokenType.LPAREN);
+						if (!eat(TokenType.LPAREN))
+							skipTo(TokenType.RPAREN);
 						
 						// collect arguments to method call
 						ExpList args = new ExpList();
@@ -365,7 +447,8 @@ public class Parser {
 			
 			default:
 				// unrecognizable expression
-				error(TokenType.UNKNOWN);
+				eat(TokenType.EXPRESSION);
+				token = lexer.getToken();
 				return null;
 				
 		}
@@ -426,6 +509,7 @@ public class Parser {
 					lhs = rhs;
 					break;
 				default:
+					eat(TokenType.OPERATOR);
 					break;
 			}
 		}
@@ -442,12 +526,15 @@ public class Parser {
 	
 	// Method declaration: public Type id ( FormalList ) { VarDecl* Statement* return Exp ; }
 	private MethodDecl parseMethodDecl() {
-		eat(TokenType.PUBLIC);
+		if (!eat(TokenType.PUBLIC))
+			skipTo(TokenType.INT, TokenType.BOOLEAN, TokenType.ID, TokenType.
+					LPAREN, TokenType.RPAREN, TokenType.LBRACE, TokenType.RBRACE);
 		
 		Type returnType = parseType();
 		Identifier methodName = parseIdentifier();
 		
-		eat(TokenType.LPAREN);
+		if (!eat(TokenType.LPAREN))
+			skipTo(TokenType.RPAREN, TokenType.LBRACE, TokenType.RBRACE);
 		
 		// collect formal params
 		FormalList params = new FormalList();
@@ -460,9 +547,12 @@ public class Parser {
 				params.addElement(parseFormal());
 			}
 		}
-		eat(TokenType.RPAREN);
 		
-		eat(TokenType.LBRACE);
+		if (!eat(TokenType.RPAREN))
+			skipTo(TokenType.LBRACE, TokenType.RBRACE);
+		
+		if (!eat(TokenType.LBRACE))
+			skipTo(TokenType.RBRACE);
 		
 		VarDeclList vars = new VarDeclList();
 		StatementList stms = new StatementList();
@@ -492,11 +582,15 @@ public class Parser {
 					stms.addElement(parseStatement());
 			}
 		}
-		eat(TokenType.RETURN);
+		
+		if (!eat(TokenType.RETURN))
+			skipTo(TokenType.SEMI, TokenType.RBRACE);
 		
 		Exp returnExp = parseExp();
 		
-		eat(TokenType.SEMI);
+		if (!eat(TokenType.SEMI))
+			skipTo(TokenType.RBRACE);
+		
 		eat(TokenType.RBRACE);
 		
 		return new MethodDecl(returnType, methodName, params, vars, stms, returnExp);
@@ -525,6 +619,7 @@ public class Parser {
 					}
 					
 					// invalid integer type declaration
+					eat(TokenType.TYPE);
 					return null;
 				}
 				
@@ -540,8 +635,8 @@ public class Parser {
 				return new IdentifierType(id);
 			
 			default:
-				// unknown type (add a new AST?)
-				eat(TokenType.UNKNOWN);
+				// unknown type
+				eat(TokenType.TYPE);
 				return null;
 				
 		}

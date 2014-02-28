@@ -55,4 +55,10 @@ public enum TokenType {
 	ASSIGN, // =
 	BANG, // !
 	
+	// for error reporting
+	STATEMENT,
+	EXPRESSION,
+	OPERATOR,
+	TYPE
+	
 }
