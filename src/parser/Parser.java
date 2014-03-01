@@ -55,6 +55,7 @@ public class Parser {
 		}
 	}
 	
+	// skip tokens until match in follow set for error recovery
 	private void skipTo(TokenType... follow) {
 		while (token.getType() != TokenType.EOF) {
 			for (TokenType skip : follow) {
@@ -71,12 +72,13 @@ public class Parser {
 		if (token == errorToken)
 			return;
 		
+		// print error report
 		System.err.print("ERROR: " + token.getType());
 		System.err.print(" at line " + token.getLineNum() + ", column " + token.getColNum());
 		System.err.println("; Expected " + type);
-		errorToken = token;
-		errors++;
-		// token = lexer.getToken();
+		
+		errorToken = token; // set error token to prevent cascading
+		errors++; // increment error counter
 	}
 	
 	// number of reported syntax errors

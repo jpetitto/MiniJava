@@ -2,321 +2,441 @@ package visitor;
 
 import ast.*;
 
+/*
+ * 
+ * Pretty printing for abstract syntax trees. Allows verification that the
+ * trees for a program's syntax were properly constructed during the parsing 
+ * stage. It is utilized by the TestParser class in MiniJava/test.
+ * 
+ */
+
 public class PrettyPrintVisitor implements Visitor {
 
-  // MainClass m;
-  // ClassDeclList cl;
-  public void visit(Program n) {
-    n.getMainClass().accept(this);
-    for ( int i = 0; i < n.getClassDeclList().size(); i++ ) {
-        System.out.println();
-        n.getClassDeclList().elementAt(i).accept(this);
-    }
-  }
-  
-  // Identifier i1,i2;
-  // Statement s;
-  public void visit(MainClass n) {
-    System.out.print("class ");
-    n.getClassId().accept(this);
-    System.out.println(" {");
-    System.out.print("  public static void main (String [] ");
-    n.getArgId().accept(this);
-    System.out.println(") {");
-    System.out.print("    ");
-    n.getStm().accept(this);
-    System.out.println("  }");
-    System.out.println("}");
-  }
+	@Override
+	public void visit(Program prog) {
+		if (prog == null) return;
+		
+		prog.getMainClass().accept(this);
+		
+		if (prog.getClassDeclList() == null) return;
+		
+		for (int i = 0; i < prog.getClassDeclList().size(); i++) {
+			if (prog.getClassDeclList().elementAt(i) == null)
+				continue;
+			
+			System.out.println();
+			prog.getClassDeclList().elementAt(i).accept(this);
+		}
+	}
 
-  // Identifier i;
-  // VarDeclList vl;
-  // MethodDeclList ml;
-  public void visit(ClassDeclSimple n) {
-    System.out.print("class ");
-    n.getClassId().accept(this);
-    System.out.println(" { ");
-    for ( int i = 0; i < n.getFields().size(); i++ ) {
-        System.out.print("  ");
-        n.getFields().elementAt(i).accept(this);
-        if ( i+1 < n.getFields().size() ) { System.out.println(); }
-    }
-    for ( int i = 0; i < n.getMethods().size(); i++ ) {
-        System.out.println();
-        n.getMethods().elementAt(i).accept(this);
-    }
-    System.out.println();
-    System.out.println("}");
-  }
- 
-  // Identifier i;
-  // Identifier j;
-  // VarDeclList vl;
-  // MethodDeclList ml;
-  public void visit(ClassDeclExtends n) {
-    System.out.print("class ");
-    n.getClassId().accept(this);
-    System.out.println(" extends ");
-    n.getSuperId().accept(this);
-    System.out.println(" { ");
-    for ( int i = 0; i < n.getFields().size(); i++ ) {
-        System.out.print("  ");
-        n.getFields().elementAt(i).accept(this);
-        if ( i+1 < n.getFields().size() ) { System.out.println(); }
-    }
-    for ( int i = 0; i < n.getMethods().size(); i++ ) {
-        System.out.println();
-        n.getMethods().elementAt(i).accept(this);
-    }
-    System.out.println();
-    System.out.println("}");
-  }
+	@Override
+	public void visit(MainClass main) {
+		if (main == null) return;
+		
+		System.out.print("class ");
+		if (main.getClassId() != null) main.getClassId().accept(this);
+		System.out.println(" {");
+		
+		System.out.print("\tpublic static void main(String[] ");
+		if (main.getArgId() != null) main.getArgId().accept(this);
+		System.out.println(") {");
+		
+		System.out.print("\t\t");
+		if (main.getStm() != null) main.getStm().accept(this);
+		System.out.println();
+		System.out.println("\t}");
+		System.out.println("}");
+	}
 
-  // Type t;
-  // Identifier i;
-  public void visit(VarDecl n) {
-    n.getType().accept(this);
-    System.out.print(" ");
-    n.getId().accept(this);
-    System.out.print(";");
-  }
+	@Override
+	public void visit(ClassDeclSimple simpleClass) {
+		if (simpleClass == null) return;
+		
+		System.out.print("class ");
+		if (simpleClass.getClassId() != null) simpleClass.getClassId().accept(this);
+		System.out.println(" {");
+		
+		if (simpleClass.getFields() != null) {
+			for (int i = 0; i < simpleClass.getFields().size(); i++) {
+				if (simpleClass.getFields().elementAt(i) == null)
+					continue;
+				
+				System.out.print("\t");
+				simpleClass.getFields().elementAt(i).accept(this);
+				System.out.println();
+			}
+		}
+		
+		if (simpleClass.getMethods() != null) {
+			for (int i = 0; i < simpleClass.getMethods().size(); i++) {
+				if (simpleClass.getMethods().elementAt(i) == null)
+					continue;
+				
+				System.out.print("\t");
+				simpleClass.getMethods().elementAt(i).accept(this);
+				System.out.println();
+			}
+		}
+		
+		System.out.println("}");
+	}
 
-  // Type t;
-  // Identifier i;
-  // FormalList fl;
-  // VarDeclList vl;
-  // StatementList sl;
-  // Exp e;
-  public void visit(MethodDecl n) {
-    System.out.print("  public ");
-    n.getReturnType().accept(this);
-    System.out.print(" ");
-    n.getId().accept(this);
-    System.out.print(" (");
-    for ( int i = 0; i < n.getParams().size(); i++ ) {
-        n.getParams().elementAt(i).accept(this);
-        if (i+1 < n.getParams().size()) { System.out.print(", "); }
-    }
-    System.out.println(") { ");
-    for ( int i = 0; i < n.getVars().size(); i++ ) {
-        System.out.print("    ");
-        n.getVars().elementAt(i).accept(this);
-        System.out.println("");
-    }
-    for ( int i = 0; i < n.getStms().size(); i++ ) {
-        System.out.print("    ");
-        n.getStms().elementAt(i).accept(this);
-        if ( i < n.getStms().size() ) { System.out.println(""); }
-    }
-    System.out.print("    return ");
-    n.getReturnExp().accept(this);
-    System.out.println(";");
-    System.out.print("  }");
-  }
+	@Override
+	public void visit(ClassDeclExtends extendsClass) {
+		if (extendsClass == null) return;
+		
+		System.out.print("class ");
+		if (extendsClass.getClassId() != null) extendsClass.getClassId().accept(this);
+		System.out.print(" extends ");
+		if (extendsClass.getSuperId() != null) extendsClass.getSuperId().accept(this);
+		System.out.println(" {");
+		
+		if (extendsClass.getFields() != null) {
+			for (int i = 0; i < extendsClass.getFields().size(); i++) {
+				if (extendsClass.getFields().elementAt(i) == null)
+					continue;
+				
+				System.out.print("\t");
+				extendsClass.getFields().elementAt(i).accept(this);
+				System.out.println();
+			}
+		}
+		
+		if (extendsClass.getMethods() != null) {
+			for (int i = 0; i < extendsClass.getMethods().size(); i++) {
+				if (extendsClass.getMethods().elementAt(i) == null)
+					continue;
+				
+				System.out.print("\t");
+				extendsClass.getMethods().elementAt(i).accept(this);
+				System.out.println();
+			}
+		}
+		
+		System.out.println("}");
+	}
 
-  // Type t;
-  // Identifier i;
-  public void visit(Formal n) {
-    n.getType().accept(this);
-    System.out.print(" ");
-    n.getId().accept(this);
-  }
+	@Override
+	public void visit(VarDecl var) {
+		if (var == null) return;
+		
+		if (var.getType() != null) var.getType().accept(this);
+		System.out.print(" ");
+		if (var.getId() != null) var.getId().accept(this);
+		System.out.print(";");
+	}
 
-  public void visit(IntArrayType n) {
-    System.out.print("int []");
-  }
+	@Override
+	public void visit(MethodDecl method) {
+		if (method == null) return;
+		
+		System.out.print("public ");
+		if (method.getReturnType() != null) method.getReturnType().accept(this);
+		System.out.print(" ");
+		if (method.getId() != null) method.getId().accept(this);
+		System.out.print(" (");
+		
+		if (method.getParams() != null) {
+			for (int i = 0; i < method.getParams().size(); i++) {
+				if (method.getParams().elementAt(i) == null)
+					continue;
+				
+				method.getParams().elementAt(i).accept(this);
+				if (i < method.getParams().size() - 1)
+					System.out.print(", ");
+			}
+		}
+		
+		System.out.println(") {");
+		
+		if (method.getVars() != null) {
+			for (int i = 0; i < method.getVars().size(); i++) {
+				if (method.getVars().elementAt(i) == null)
+					continue;
+				
+				System.out.print("\t\t");
+				method.getVars().elementAt(i).accept(this);
+				System.out.println();
+			}
+		}
+		
+		if (method.getStms() != null) {
+			for (int i = 0; i < method.getStms().size(); i++) {
+				if (method.getStms().elementAt(i) == null)
+					continue;
+				
+				System.out.print("\t\t");
+				method.getStms().elementAt(i).accept(this);
+				System.out.println();
+			}
+		}
+		
+		System.out.print("\t\treturn ");
+		if (method.getReturnExp() != null) method.getReturnExp().accept(this);
+		System.out.println(";");
+		System.out.println("\t}");
+	}
 
-  public void visit(BooleanType n) {
-    System.out.print("boolean");
-  }
+	@Override
+	public void visit(Formal param) {
+		if (param == null) return;
+		
+		if (param.getType() != null) param.getType().accept(this);
+		System.out.print(" ");
+		if (param.getId() != null) param.getId().accept(this);
+	}
 
-  public void visit(IntegerType n) {
-    System.out.print("int");
-  }
+	@Override
+	public void visit(IntArrayType intArrayT) {
+		System.out.print("int[]");
+	}
 
-  // String s;
-  public void visit(IdentifierType n) {
-    System.out.print(n.getName());
-  }
+	@Override
+	public void visit(BooleanType boolT) {
+		System.out.print("boolean");
+	}
 
-  // StatementList sl;
-  public void visit(Block n) {
-    System.out.println("{ ");
-    for ( int i = 0; i < n.getStms().size(); i++ ) {
-        System.out.print("      ");
-        n.getStms().elementAt(i).accept(this);
-        System.out.println();
-    }
-    System.out.print("    } ");
-  }
+	@Override
+	public void visit(IntegerType intT) {
+		System.out.print("int");
+	}
 
-  // Exp e;
-  // Statement s1,s2;
-  public void visit(If n) {
-    System.out.print("if (");
-    n.getCondExp().accept(this);
-    System.out.println(") ");
-    System.out.print("    ");
-    n.getTrueStm().accept(this);
-    System.out.println();
-    System.out.print("    else ");
-    n.getFalseStm().accept(this);
-  }
+	@Override
+	public void visit(IdentifierType idT) {
+		if (idT != null)
+			System.out.print(idT.getName());
+	}
 
-  // Exp e;
-  // Statement s;
-  public void visit(While n) {
-    System.out.print("while (");
-    n.getCondExp().accept(this);
-    System.out.print(") ");
-    n.getStm().accept(this);
-  }
+	@Override
+	public void visit(Block blockStm) {
+		if (blockStm == null) return;
+		
+		System.out.println("{");
+		
+		if (blockStm.getStms() != null) {
+			for (int i = 0; i < blockStm.getStms().size(); i++) {
+				if (blockStm.getStms().elementAt(i) == null)
+					continue;
+				
+				System.out.print("\t\t\t");
+				blockStm.getStms().elementAt(i).accept(this);
+				System.out.println();
+			}
+		}
+		
+		System.out.println("\t\t}");
+	}
 
-  // Exp e;
-  public void visit(Print n) {
-    System.out.print("System.out.println(");
-    n.getExp().accept(this);
-    System.out.print(");");
-  }
-  
-  // Identifier i;
-  // Exp e;
-  public void visit(Assign n) {
-    n.getId().accept(this);
-    System.out.print(" = ");
-    n.getValue().accept(this);
-    System.out.print(";");
-  }
+	@Override
+	public void visit(If ifStm) {
+		if (ifStm == null) return;
+		
+		System.out.print("if (");
+		if (ifStm.getCondExp() != null) ifStm.getCondExp().accept(this);
+		System.out.println(")");
+		
+		System.out.print("\t\t\t");
+		if (ifStm.getTrueStm() != null) ifStm.getTrueStm().accept(this);
+		System.out.println();
+		
+		System.out.println("\t\telse");
+		System.out.print("\t\t\t");
+		if (ifStm.getFalseStm() != null) ifStm.getFalseStm().accept(this);
+	}
 
-  // Identifier i;
-  // Exp e1,e2;
-  public void visit(ArrayAssign n) {
-    n.getId().accept(this);
-    System.out.print("[");
-    n.getIndex().accept(this);
-    System.out.print("] = ");
-    n.getValue().accept(this);
-    System.out.print(";");
-  }
+	@Override
+	public void visit(While whileStm) {
+		if (whileStm == null) return;
+		
+		System.out.print("while (");
+		if (whileStm.getCondExp() != null) whileStm.getCondExp().accept(this);
+		System.out.print(")");
+		if (whileStm.getStm() != null) whileStm.getStm().accept(this);
+	}
 
-  // Exp e1,e2;
-  public void visit(And n) {
-    System.out.print("(");
-    n.getLHS().accept(this);
-    System.out.print(" && ");
-    n.getRHS().accept(this);
-    System.out.print(")");
-  }
+	@Override
+	public void visit(Print printStm) {
+		if (printStm == null) return;
+		
+		System.out.print("System.out.println(");
+		if (printStm.getExp() != null) printStm.getExp().accept(this);
+		System.out.print(");");
+	}
 
-  // Exp e1,e2;
-  public void visit(LessThan n) {
-    System.out.print("(");
-    n.getLHS().accept(this);
-    System.out.print(" < ");
-    n.getRHS().accept(this);
-    System.out.print(")");
-  }
+	@Override
+	public void visit(Assign assignStm) {
+		if (assignStm == null) return;
+		
+		if (assignStm.getId() != null) assignStm.getId().accept(this);
+		System.out.print(" = ");
+		if (assignStm.getValue() != null) assignStm.getValue().accept(this);
+		System.out.print(";");
+	}
 
-  // Exp e1,e2;
-  public void visit(Plus n) {
-    System.out.print("(");
-    n.getLHS().accept(this);
-    System.out.print(" + ");
-    n.getRHS().accept(this);
-    System.out.print(")");
-  }
+	@Override
+	public void visit(ArrayAssign arrayAssignStm) {
+		if (arrayAssignStm == null) return;
+		
+		if (arrayAssignStm.getId() != null) arrayAssignStm.getId().accept(this);
+		System.out.print("[");
+		if (arrayAssignStm.getIndex() != null) arrayAssignStm.getIndex().accept(this);
+		System.out.print("] = ");
+		if (arrayAssignStm.getValue() != null) arrayAssignStm.getValue().accept(this);
+		System.out.print(";");
+	}
 
-  // Exp e1,e2;
-  public void visit(Minus n) {
-    System.out.print("(");
-    n.getLHS().accept(this);
-    System.out.print(" - ");
-    n.getRHS().accept(this);
-    System.out.print(")");
-  }
+	@Override
+	public void visit(And andExp) {
+		if (andExp == null) return;
+		
+		System.out.print("(");
+		if (andExp.getLHS() != null) andExp.getLHS().accept(this);
+		System.out.print(" && ");
+		if (andExp.getRHS() != null) andExp.getRHS().accept(this);
+		System.out.print(")");
+	}
 
-  // Exp e1,e2;
-  public void visit(Times n) {
-    System.out.print("(");
-    n.getLHS().accept(this);
-    System.out.print(" * ");
-    n.getRHS().accept(this);
-    System.out.print(")");
-  }
+	@Override
+	public void visit(LessThan lessThanExp) {
+		if (lessThanExp == null) return;
+		
+		System.out.print("(");
+		if (lessThanExp.getLHS() != null) lessThanExp.getLHS().accept(this);
+		System.out.print(" < ");
+		if (lessThanExp.getRHS() != null) lessThanExp.getRHS().accept(this);
+		System.out.print(")");
+	}
 
-  // Exp e1,e2;
-  public void visit(ArrayLookup n) {
-    n.getArray().accept(this);
-    System.out.print("[");
-    n.getIndex().accept(this);
-    System.out.print("]");
-  }
+	@Override
+	public void visit(Plus plusExp) {
+		if (plusExp == null) return;
+		
+		System.out.print("(");
+		if (plusExp.getLHS() != null) plusExp.getLHS().accept(this);
+		System.out.print(" + ");
+		if (plusExp.getRHS() != null) plusExp.getRHS().accept(this);
+		System.out.print(")");
+	}
 
-  // Exp e;
-  public void visit(ArrayLength n) {
-    n.getArray().accept(this);
-    System.out.print(".length");
-  }
+	@Override
+	public void visit(Minus minusExp) {
+		if (minusExp == null) return;
+		
+		System.out.print("(");
+		if (minusExp.getLHS() != null) minusExp.getLHS().accept(this);
+		System.out.print(" - ");
+		if (minusExp.getRHS() != null) minusExp.getRHS().accept(this);
+		System.out.print(")");
+	}
 
-  // Exp e;
-  // Identifier i;
-  // ExpList el;
-  public void visit(Call n) {
-    n.getCallee().accept(this);
-    System.out.print(".");
-    n.getMethodName().accept(this);
-    System.out.print("(");
-    for ( int i = 0; i < n.getArgs().size(); i++ ) {
-        n.getArgs().elementAt(i).accept(this);
-        if ( i+1 < n.getArgs().size() ) { System.out.print(", "); }
-    }
-    System.out.print(")");
-  }
+	@Override
+	public void visit(Times timesExp) {
+		if (timesExp == null) return;
+		
+		System.out.print("(");
+		if (timesExp.getLHS() != null) timesExp.getLHS().accept(this);
+		System.out.print(" * ");
+		if (timesExp.getRHS() != null) timesExp.getRHS().accept(this);
+		System.out.print(")");
+	}
 
-  // int i;
-  public void visit(IntegerLiteral n) {
-    System.out.print(n.getValue());
-  }
+	@Override
+	public void visit(ArrayLookup arrayLookup) {
+		if (arrayLookup == null) return;
+		
+		if (arrayLookup.getArray() != null) arrayLookup.getArray().accept(this);
+		System.out.print("[");
+		if (arrayLookup.getIndex() != null) arrayLookup.getIndex().accept(this);
+	}
 
-  public void visit(True n) {
-    System.out.print("true");
-  }
+	@Override
+	public void visit(ArrayLength length) {
+		if (length == null) return;
+		
+		if (length.getArray() != null) length.getArray().accept(this);
+		System.out.print(".length");
+	}
 
-  public void visit(False n) {
-    System.out.print("false");
-  }
+	@Override
+	public void visit(Call callExp) {
+		if (callExp == null) return;
+		
+		if (callExp.getCallee() != null) callExp.getCallee().accept(this);
+		System.out.print(".");
+		if (callExp.getMethodName() != null) callExp.getMethodName().accept(this);
+		System.out.print("(");
+		
+		if (callExp.getArgs() != null) {
+			for (int i = 0; i < callExp.getArgs().size(); i++) {
+				if (callExp.getArgs().elementAt(i) == null)
+					continue;
+				
+				callExp.getArgs().elementAt(i).accept(this);
+				if (i < callExp.getArgs().size() - 1)
+					System.out.print(", ");
+			}
+		}
+		
+		System.out.print(")");
+	}
 
-  // String s;
-  public void visit(IdentifierExp n) {
-    System.out.print(n.getName());
-  }
+	@Override
+	public void visit(IntegerLiteral intLiteral) {
+		if (intLiteral != null)
+			System.out.print(intLiteral.getValue());
+	}
 
-  public void visit(This n) {
-    System.out.print("this");
-  }
+	@Override
+	public void visit(True trueLiteral) {
+		System.out.print("true");
+	}
 
-  // Exp e;
-  public void visit(NewArray n) {
-    System.out.print("new int [");
-    n.getArraySize().accept(this);
-    System.out.print("]");
-  }
+	@Override
+	public void visit(False falseLiteral) {
+		System.out.print("false");
+	}
 
-  // Identifier i;
-  public void visit(NewObject n) {
-    System.out.print("new ");
-    System.out.print(n.getId().getName());
-    System.out.print("()");
-  }
+	@Override
+	public void visit(IdentifierExp identExp) {
+		if (identExp != null)
+			System.out.print(identExp.getName());
+	}
 
-  // Exp e;
-  public void visit(Not n) {
-    System.out.print("!");
-    n.getExp().accept(this);
-  }
+	@Override
+	public void visit(This thisLiteral) {
+		System.out.print("this");
+	}
 
-  // String s;
-  public void visit(Identifier n) {
-    System.out.print(n.getName());
-  }
+	@Override
+	public void visit(NewArray array) {
+		if (array == null) return;
+		
+		System.out.print("new int [");
+		if (array.getArraySize() != null) array.getArraySize().accept(this);
+		System.out.print("]");
+	}
+
+	@Override
+	public void visit(NewObject object) {
+		if (object == null) return;
+		
+		System.out.print("new ");
+		if (object.getId() != null) object.getId().accept(this);
+		System.out.print("()");
+	}
+
+	@Override
+	public void visit(Not notExp) {
+		if (notExp == null) return;
+		
+		System.out.print("!");
+		if (notExp.getExp() != null) notExp.getExp().accept(this);
+	}
+
+	@Override
+	public void visit(Identifier id) {
+		if (id != null)
+			System.out.print(id.getName());
+	}
+
 }

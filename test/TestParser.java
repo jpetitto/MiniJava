@@ -2,7 +2,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import ast.Program;
-
 import parser.Parser;
 import visitor.PrettyPrintVisitor;
 
