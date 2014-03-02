@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class Minus extends Exp {
+public class Minus implements Exp {
 	private Exp lhs, rhs;
 	
 	public Minus(Exp lhs, Exp rhs) {

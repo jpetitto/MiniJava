@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class Times extends Exp {
+public class Times implements Exp {
 	private Exp lhs, rhs;
 	
 	public Times(Exp lhs, Exp rhs) {

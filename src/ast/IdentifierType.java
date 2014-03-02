@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class IdentifierType extends Type {
+public class IdentifierType implements Type {
 	private String name;
 	
 	public IdentifierType(String name) {

@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class IdentifierExp extends Exp {
+public class IdentifierExp implements Exp {
 	private String name;
 	
 	public IdentifierExp(String name) {

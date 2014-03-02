@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class Print extends Statement {
+public class Print implements Statement {
 	private Exp exp;
 	
 	public Print(Exp exp) {

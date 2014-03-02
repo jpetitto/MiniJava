@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class Not extends Exp {
+public class Not implements Exp {
 	private Exp exp;
 	
 	public Not(Exp exp) {

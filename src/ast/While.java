@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class While extends Statement {
+public class While implements Statement {
 	private Exp condExp;
 	private Statement stm;
 	

@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class If extends Statement {
+public class If implements Statement {
 	private Exp condExp;
 	private Statement trueStm, falseStm;
 	

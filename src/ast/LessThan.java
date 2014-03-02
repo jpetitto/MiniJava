@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class LessThan extends Exp {
+public class LessThan implements Exp {
 	private Exp lhs, rhs;
 	
 	public LessThan(Exp lhs, Exp rhs) {

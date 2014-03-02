@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class ArrayLookup extends Exp {
+public class ArrayLookup implements Exp {
 	private Exp array, index;
 	
 	public ArrayLookup(Exp array, Exp index) {

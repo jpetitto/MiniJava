@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class NewObject extends Exp {
+public class NewObject implements Exp {
 	private Identifier id;
 	
 	public NewObject(Identifier id) {

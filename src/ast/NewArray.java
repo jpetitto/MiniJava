@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class NewArray extends Exp {
+public class NewArray implements Exp {
 	private Exp arraySize;
 	
 	public NewArray(Exp arraySize) {

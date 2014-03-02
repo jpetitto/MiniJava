@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class ClassDeclExtends extends ClassDecl {
+public class ClassDeclExtends implements ClassDecl {
 	private Identifier classId, superId;
 	private VarDeclList fields;
 	private MethodDeclList methods;

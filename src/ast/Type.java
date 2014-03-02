@@ -2,6 +2,6 @@ package ast;
 
 import visitor.Visitor;
 
-public abstract class Type {
-	public abstract void accept(Visitor v);
+public interface Type {
+	public void accept(Visitor v);
 }

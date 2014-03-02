@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class And extends Exp {
+public class And implements Exp {
 	private Exp lhs, rhs;
 	
 	public And(Exp lhs, Exp rhs) {

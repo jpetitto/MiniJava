@@ -16,10 +16,9 @@ public class PrettyPrintVisitor implements Visitor {
 	public void visit(Program prog) {
 		if (prog == null) return;
 		
-		prog.getMainClass().accept(this);
+		if (prog.getMainClass() != null) prog.getMainClass().accept(this);
 		
 		if (prog.getClassDeclList() == null) return;
-		
 		for (int i = 0; i < prog.getClassDeclList().size(); i++) {
 			if (prog.getClassDeclList().elementAt(i) == null)
 				continue;
@@ -31,8 +30,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(MainClass main) {
-		if (main == null) return;
-		
 		System.out.print("class ");
 		if (main.getClassId() != null) main.getClassId().accept(this);
 		System.out.println(" {");
@@ -50,8 +47,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(ClassDeclSimple simpleClass) {
-		if (simpleClass == null) return;
-		
 		System.out.print("class ");
 		if (simpleClass.getClassId() != null) simpleClass.getClassId().accept(this);
 		System.out.println(" {");
@@ -83,8 +78,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(ClassDeclExtends extendsClass) {
-		if (extendsClass == null) return;
-		
 		System.out.print("class ");
 		if (extendsClass.getClassId() != null) extendsClass.getClassId().accept(this);
 		System.out.print(" extends ");
@@ -118,8 +111,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(VarDecl var) {
-		if (var == null) return;
-		
 		if (var.getType() != null) var.getType().accept(this);
 		System.out.print(" ");
 		if (var.getId() != null) var.getId().accept(this);
@@ -128,8 +119,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(MethodDecl method) {
-		if (method == null) return;
-		
 		System.out.print("public ");
 		if (method.getReturnType() != null) method.getReturnType().accept(this);
 		System.out.print(" ");
@@ -179,8 +168,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(Formal param) {
-		if (param == null) return;
-		
 		if (param.getType() != null) param.getType().accept(this);
 		System.out.print(" ");
 		if (param.getId() != null) param.getId().accept(this);
@@ -203,14 +190,12 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(IdentifierType idT) {
-		if (idT != null)
+		if (idT.getName() != null)
 			System.out.print(idT.getName());
 	}
 
 	@Override
 	public void visit(Block blockStm) {
-		if (blockStm == null) return;
-		
 		System.out.println("{");
 		
 		if (blockStm.getStms() != null) {
@@ -229,8 +214,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(If ifStm) {
-		if (ifStm == null) return;
-		
 		System.out.print("if (");
 		if (ifStm.getCondExp() != null) ifStm.getCondExp().accept(this);
 		System.out.println(")");
@@ -246,8 +229,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(While whileStm) {
-		if (whileStm == null) return;
-		
 		System.out.print("while (");
 		if (whileStm.getCondExp() != null) whileStm.getCondExp().accept(this);
 		System.out.print(")");
@@ -256,8 +237,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(Print printStm) {
-		if (printStm == null) return;
-		
 		System.out.print("System.out.println(");
 		if (printStm.getExp() != null) printStm.getExp().accept(this);
 		System.out.print(");");
@@ -265,8 +244,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(Assign assignStm) {
-		if (assignStm == null) return;
-		
 		if (assignStm.getId() != null) assignStm.getId().accept(this);
 		System.out.print(" = ");
 		if (assignStm.getValue() != null) assignStm.getValue().accept(this);
@@ -275,8 +252,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(ArrayAssign arrayAssignStm) {
-		if (arrayAssignStm == null) return;
-		
 		if (arrayAssignStm.getId() != null) arrayAssignStm.getId().accept(this);
 		System.out.print("[");
 		if (arrayAssignStm.getIndex() != null) arrayAssignStm.getIndex().accept(this);
@@ -287,8 +262,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(And andExp) {
-		if (andExp == null) return;
-		
 		System.out.print("(");
 		if (andExp.getLHS() != null) andExp.getLHS().accept(this);
 		System.out.print(" && ");
@@ -298,8 +271,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(LessThan lessThanExp) {
-		if (lessThanExp == null) return;
-		
 		System.out.print("(");
 		if (lessThanExp.getLHS() != null) lessThanExp.getLHS().accept(this);
 		System.out.print(" < ");
@@ -309,8 +280,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(Plus plusExp) {
-		if (plusExp == null) return;
-		
 		System.out.print("(");
 		if (plusExp.getLHS() != null) plusExp.getLHS().accept(this);
 		System.out.print(" + ");
@@ -320,8 +289,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(Minus minusExp) {
-		if (minusExp == null) return;
-		
 		System.out.print("(");
 		if (minusExp.getLHS() != null) minusExp.getLHS().accept(this);
 		System.out.print(" - ");
@@ -331,8 +298,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(Times timesExp) {
-		if (timesExp == null) return;
-		
 		System.out.print("(");
 		if (timesExp.getLHS() != null) timesExp.getLHS().accept(this);
 		System.out.print(" * ");
@@ -342,8 +307,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(ArrayLookup arrayLookup) {
-		if (arrayLookup == null) return;
-		
 		if (arrayLookup.getArray() != null) arrayLookup.getArray().accept(this);
 		System.out.print("[");
 		if (arrayLookup.getIndex() != null) arrayLookup.getIndex().accept(this);
@@ -351,16 +314,12 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(ArrayLength length) {
-		if (length == null) return;
-		
 		if (length.getArray() != null) length.getArray().accept(this);
 		System.out.print(".length");
 	}
 
 	@Override
 	public void visit(Call callExp) {
-		if (callExp == null) return;
-		
 		if (callExp.getCallee() != null) callExp.getCallee().accept(this);
 		System.out.print(".");
 		if (callExp.getMethodName() != null) callExp.getMethodName().accept(this);
@@ -382,8 +341,7 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(IntegerLiteral intLiteral) {
-		if (intLiteral != null)
-			System.out.print(intLiteral.getValue());
+		System.out.print(intLiteral.getValue());
 	}
 
 	@Override
@@ -398,7 +356,7 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(IdentifierExp identExp) {
-		if (identExp != null)
+		if (identExp.getName() != null)
 			System.out.print(identExp.getName());
 	}
 
@@ -409,8 +367,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(NewArray array) {
-		if (array == null) return;
-		
 		System.out.print("new int [");
 		if (array.getArraySize() != null) array.getArraySize().accept(this);
 		System.out.print("]");
@@ -418,8 +374,6 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(NewObject object) {
-		if (object == null) return;
-		
 		System.out.print("new ");
 		if (object.getId() != null) object.getId().accept(this);
 		System.out.print("()");
@@ -427,15 +381,13 @@ public class PrettyPrintVisitor implements Visitor {
 
 	@Override
 	public void visit(Not notExp) {
-		if (notExp == null) return;
-		
 		System.out.print("!");
 		if (notExp.getExp() != null) notExp.getExp().accept(this);
 	}
 
 	@Override
 	public void visit(Identifier id) {
-		if (id != null)
+		if (id.getName() != null)
 			System.out.print(id.getName());
 	}
 

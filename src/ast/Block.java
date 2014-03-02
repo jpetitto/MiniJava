@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class Block extends Statement {
+public class Block implements Statement {
 	private StatementList stms;
 	
 	public Block(StatementList stms) {

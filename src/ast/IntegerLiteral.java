@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class IntegerLiteral extends Exp {
+public class IntegerLiteral implements Exp {
 	private int value;
 	
 	public IntegerLiteral(int value) {

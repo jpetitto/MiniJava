@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class Assign extends Statement {
+public class Assign implements Statement {
 	private Identifier id;
 	private Exp value;
 	

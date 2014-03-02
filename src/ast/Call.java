@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class Call extends Exp {
+public class Call implements Exp {
 	private Exp callee;
 	private Identifier methodName;
 	private ExpList args;

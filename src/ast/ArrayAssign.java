@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class ArrayAssign extends Statement {
+public class ArrayAssign implements Statement {
 	private Identifier id;
 	private Exp index, value;
 	
